@@ -30,3 +30,12 @@ def convolve(image, kernel):
 def normalize(f, lmin=0.0, lmax=255.0):
     fmin, fmax  = f.min(), f.max()
     return ((lmax - lmin)/(fmax-fmin)) * (f - fmin) + lmin
+
+
+def equalize_histogram(f):
+    hist = np.bincount(f.ravel()).astype(float)
+    freq = hist / f.size
+    acc = np.cumsum(freq)
+    T = acc * 255
+    return T[f].astype(np.uint8)
+    

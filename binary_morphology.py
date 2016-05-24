@@ -1,12 +1,22 @@
 import scipy.ndimage as mm
 import numpy as np
 
+############# Utils  #############################
 def sub_with_saturation(f1, f2):
     return np.clip(f1 - f2, 0,1)
 
-def calculate_connected_components_area(f):
+def binary_image_union(f1, f2):
+    return np.maximum(f1, f2)
+
+#function adpated from http://adessowiki.fee.unicamp.br/adesso-1/wiki/ia870/iaisequal/view/
+def is_binary_image_equal(f1, f2):
+    if f1.shape != f2.shape:
+        return False
+    return np.all(f1 == f2)
+
+def calculate_connected_components_area(f, conectivity=None):
     result = np.zeros(f.shape)
-    labeled_array, num_ccs  = mm.label(f)
+    labeled_array, num_ccs  = mm.label(f, structure=conectivity)
     area = np.bincount(labeled_array.ravel())
     
     for i in range(1, num_ccs+1):
@@ -28,6 +38,7 @@ def neighbourhood_lut(s, offset):
     nlut = np.clip(h * W + w, 0, n)
     return nlut.reshape(offset.shape[0], -1).transpose()
 
+############# Structure elements creation  #############################
 def create_structure_element_disk(r=3):
     v = np.arange(-r, r+1)
     x = np.resize(v, (len(v), len(v)))
@@ -57,36 +68,47 @@ def create_structure_element_box(r=1):
     else:
         return np.ones((3*r-(r-1), 3*r-(r-1)), np.bool)
 
+############# Morphology operators  #############################
 def dilation(f, b, iterations=1):
     return mm.binary_dilation(f, b, iterations)
 
 def erosion(f, b, iterations=1):
     return mm.binary_erosion(f, b, iterations)
 
-def opening(f, b):
+# function adpated from http://adessowiki.fee.unicamp.br/adesso-1/wiki/ia870/iacero/view/
+#def conditional_erosion(f, g, b=create_structure_element_cross(), n=1):
+#   y = binary_image_union(f, g)     #union
+#    for i in range(n):
+#        aux = y
+#        y = binary_image_union(erosion(y,b), g) # erosion(y,b) union g
+#        if is_binary_image_equal(y, aux):
+#            break
+#    return y
+
+def opening(f, b=create_structure_element_cross()):
     return mm.binary_opening(f, b)
 
-def closing(f, b):
+def closing(f, b=create_structure_element_cross()):
     return mm.binary_closing(f,b)
 
-def fill_holes(f, b):
+def closing_holes(f, b=create_structure_element_cross()):
     return mm.binary_fill_holes(f, b)
 
-def opening_top_hat(f, b):
+def opening_top_hat(f, b=create_structure_element_cross()):
     return sub_with_saturation(f, opening(f,b))
 
-def morphological_external_boundary(f, b):
+def morphological_external_boundary(f, b=create_structure_element_cross()):
     return dilation(f,b) - f
 
-def morphological_internal_boundary(f, b):
+def morphological_internal_boundary(f, b=create_structure_element_cross()):
     return f - erosion(f, b)
 
 def morphological_gradient(f, b=create_structure_element_cross()):
     return dilation(f, b) - erosion(f, b)
     #return mm.morphological_gradient(f, structure=b)
 
-def area_opening(f, thres_area):
-    area = calculate_connected_components_area(f)
+def area_opening(f, thres_area, conectivity=None):
+    area = calculate_connected_components_area(f, conectivity)
     return area >= thres_area
 
 
@@ -136,3 +158,11 @@ def inf_reconstruction(markers, f, bc=create_structure_element_cross()):
                 queue.append(q)
             
     return J.reshape(f.shape)
+
+
+#function adpated from http://adessowiki.fee.unicamp.br/adesso-1/wiki/ia870/iasuprec/view/
+#def sup_reconstruction(f, g, bc=create_structure_element_cross()):
+#    n = np.product(f.shape)
+#    y = conditional_erosion(f, g, bc, n)
+
+#    return y
