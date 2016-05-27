@@ -69,10 +69,10 @@ def create_structure_element_box(r=1):
         return np.ones((3*r-(r-1), 3*r-(r-1)), np.bool)
 
 ############# Morphology operators  #############################
-def dilation(f, b, iterations=1):
+def dilation(f, b=create_structure_element_cross(), iterations=1):
     return mm.binary_dilation(f, b, iterations)
 
-def erosion(f, b, iterations=1):
+def erosion(f, b=create_structure_element_cross(), iterations=1):
     return mm.binary_erosion(f, b, iterations)
 
 # function adpated from http://adessowiki.fee.unicamp.br/adesso-1/wiki/ia870/iacero/view/
