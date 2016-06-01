@@ -27,3 +27,6 @@ def opening_top_hat(f, b=bm.create_structure_element_cross()):
 
 def closing_top_hat(f, b=bm.create_structure_element_cross()):
     return closing(f, b) - f
+
+def inf_reconstruction(markers, f, bc=bm.create_structure_element_cross()):
+    return bm.inf_reconstruction(markers, f, bc)
