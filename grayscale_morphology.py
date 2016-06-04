@@ -1,10 +1,10 @@
 import scipy.ndimage as mm
 from . import binary_morphology as bm
 
-def dilation(f, b=bm.create_structure_element_cross()):
+def dilation(f, b=bm.create_structure_element_cross(), iterations=1):
     return mm.grey_dilation(f,structure=b)
 
-def erosion(f, b=bm.create_structure_element_cross()):
+def erosion(f, b=bm.create_structure_element_cross(), iterations=1):
     return mm.grey_erosion(f,structure=b)
 
 def closing(f, b=bm.create_structure_element_cross()):

@@ -59,3 +59,8 @@ def display_image(ima, width=None, height=None):
 def display_binary_image(ima, width=None, height=None):
     f = ima * 255
     display_image(f, width, height)
+
+def save_binary_image(filename, ima):
+    import scipy.misc as mi
+    f = ima * 255
+    mi.imsave(filename, f)
